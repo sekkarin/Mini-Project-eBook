@@ -109,7 +109,6 @@ export class UsersService {
     } catch (error) {
       console.log(error);
       throw error;
-      // throw new UnauthorizedException();
     }
   }
   private deleteFile(path: string) {
@@ -118,9 +117,7 @@ export class UsersService {
       fs.unlinkSync(filePath);
     }
   }
-  async createUser(
-    @Body() crateUserDto: CreateUserDto,
-  ){
+  async createUser(@Body() crateUserDto: CreateUserDto) {
     const usernameAlreadyExists = await this.findOne(crateUserDto.username);
     if (usernameAlreadyExists) {
       throw new UnauthorizedException('username has been used');

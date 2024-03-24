@@ -11,8 +11,6 @@ import {
 } from 'class-validator';
 import { FileUploadDto } from './file-upload.dto';
 
-
-
 export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
@@ -40,45 +38,35 @@ export class CreateUserDto {
 }
 
 export class UpdateUserDto {
-  @ApiProperty({
-    description: 'Password for the user',
-    example: 'Password123',
-    required: false 
-  })
-  @Length(8)
+  @IsString()
   @IsOptional()
-  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'password too weak',
-  })
+  firstName?: string;
+
+  @IsString()
+  @IsOptional()
+  titleName?: string;
+
+  @IsString()
+  @IsOptional()
+  lastName?: string;
+
+  @IsString()
+  @IsOptional()
+  username?: string;
+
+  @IsString()
+  @IsOptional()
   password?: string;
 
-  @ApiProperty({
-    description: 'First name of the user',
-    example: 'John',
-    required: false 
-  })
- 
+  @IsEmail()
   @IsOptional()
-  @IsString()
-  @MinLength(3)
-  @MaxLength(30)
-  @Matches('^[a-zA-Z\\s]+$', undefined)
-   firstName?: string;
+  email?: string;
 
-  @ApiProperty({
-    description: 'Last name of the user',
-    example: 'Doe',
-    required: false 
-  })
   @IsString()
   @IsOptional()
-  @MinLength(3)
-  @MaxLength(30)
-  @Matches('^[a-zA-Z\\s]+$', undefined)
-   lastName?: string;
+  phone?: string;
 
-  @ApiProperty({ type: 'string', format: 'binary', required: false })
-  file?: FileUploadDto;
+  profile?: FileUploadDto;
 }
 
 export class User {

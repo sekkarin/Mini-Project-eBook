@@ -29,7 +29,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { storageFiles } from './../utils/storageFiles';
 import { ConfigService } from '@nestjs/config';
 
-// TODO: sort and filter get users
 @ApiTags('User')
 @Controller('users')
 export class UsersController {
@@ -42,7 +41,7 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(
-    FileInterceptor('file', {
+    FileInterceptor('profile', {
       storage: storageFiles(),
       fileFilter(req, file, callback) {
         if (!file.originalname.match(/\.(jpg|png|jpeg)$/)) {
@@ -58,7 +57,7 @@ export class UsersController {
   update(
     @Body() updateUserDto: UpdateUserDto,
     @Req() req: Request,
-    @UploadedFile() file?: Express.Multer.File,
+    @UploadedFile() profile?: Express.Multer.File,
   ) {
     const protocol = req.protocol;
     const host = req.hostname;
@@ -70,33 +69,25 @@ export class UsersController {
       `:${this.configService.get<string>('PORT')}` +
       originUrl +
       '/profile/';
-
     try {
-      // TODO: delete image old
-      // TODO: Refactor code and clean up
-      // TODO: SAVE image when error
-      // FIXME: dto update
-      // FIXME: fix full path
-
       const id = req['user'].sub;
-      //  console.log(req?.fileValidationError);
-
-      if (Object.keys(updateUserDto).length === 0 && !file) {
+      if (Object.keys(updateUserDto).length === 0 && !profile) {
         throw new BadRequestException(
           'Please provide at least one field to update.',
         );
       }
-
       const updatedUser = this.usersService.update(
         updateUserDto,
         id,
-        file,
+        profile,
         fullUrl,
       );
       return updatedUser;
     } catch (error) {
-      if (file) {
-        const filePath = file.path;
+      console.log(error);
+      
+      if (profile) {
+        const filePath = profile.path;
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
         }
@@ -104,6 +95,7 @@ export class UsersController {
       throw error;
     }
   }
+  
   @Delete()
   @UseGuards(AuthGuard)
   async deleteUser(@Req() req: Request) {

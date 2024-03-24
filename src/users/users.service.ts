@@ -11,7 +11,7 @@ import * as bcrypt from 'bcrypt';
 
 import { User } from './interfaces/user.interface';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
-import { UserResponseDto } from './../auth/dto/auth.dto';
+import { UserResponseDto } from './dto/user.response.dto';
 import { PaginatedDto } from './../utils/dto/paginated.dto';
 
 @Injectable()
@@ -120,7 +120,7 @@ export class UsersService {
   }
   async createUser(
     @Body() crateUserDto: CreateUserDto,
-  ): Promise<UserResponseDto> {
+  ){
     const usernameAlreadyExists = await this.findOne(crateUserDto.username);
     if (usernameAlreadyExists) {
       throw new UnauthorizedException('username has been used');
@@ -131,8 +131,6 @@ export class UsersService {
     }
     const createdUser = new this.userModel({
       ...crateUserDto,
-      roles: ['user'],
-      isActive: true,
     });
     await createdUser.save();
 
@@ -143,78 +141,14 @@ export class UsersService {
   async deleteUser(id: string) {
     return await this.userModel.deleteOne({ _id: id });
   }
-  async verifiredUserEmail(email: string) {
-    return await this.userModel.findOneAndUpdate(
-      { email },
-      { verifired: true },
-    );
-  }
-  async setNewPassword(email: string, newPassword: string) {
-    try {
-      const updatedUser = await this.userModel.findOneAndUpdate(
-        { email },
-        { password: newPassword },
-      );
-      return updatedUser;
-    } catch (err) {
-      throw new UnauthorizedException();
-    }
-  }
   private mapToUserResponseDto(user: User): UserResponseDto {
     return {
       id: user.id,
       email: user.email,
-      fname: user.firstName,
-      lname: user.lastName,
+      firstName: user.firstName,
+      lastName: user.lastName,
       username: user.username,
-      isActive: user.isActive,
       profileUrl: user.profileUrl,
-      createdAt: user.createdAt,
     };
-  }
-  async setBanned(banned: boolean, id: string) {
-    try {
-      const findUser = await this.userModel.findById(id);
-      if (!findUser) {
-        throw new NotFoundException(`User not found`);
-      }
-      const updatedUser = await this.userModel.findOneAndUpdate(
-        { _id: id },
-        { isActive: banned },
-      );
-      return this.mapToUserResponseDto(updatedUser);
-    } catch (error) {
-      throw error;
-    }
-  }
-  async searchUsers(
-    query: string,
-    page = 1,
-    limit = 10,
-    currentUserId: string,
-  ) {
-    const itemCount = await this.userModel.countDocuments({
-      _id: { $ne: currentUserId },
-    });
-    const users = await this.userModel
-      .find({
-        _id: { $ne: currentUserId },
-        $or: [
-          { firstName: { $regex: query, $options: 'i' } },
-          { lastName: { $regex: query, $options: 'i' } },
-          { username: { $regex: query, $options: 'i' } },
-          { email: { $regex: query, $options: 'i' } },
-        ],
-      })
-      .skip((page - 1) * limit)
-      .limit(limit);
-
-    const usersResponse = users.map((user) => this.mapToUserResponseDto(user));
-    return new PaginatedDto<UserResponseDto>(
-      usersResponse,
-      page,
-      limit,
-      itemCount,
-    );
   }
 }

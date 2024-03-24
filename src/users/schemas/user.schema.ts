@@ -6,6 +6,10 @@ export const UserSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    titleName: {
+      type: String,
+      trim: true,
+    },
     lastName: {
       type: String,
       trim: true,
@@ -22,27 +26,13 @@ export const UserSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    roles: [
-      {
-        type: String,
-        enum: ['user', 'admin'],
-        default: 'user',
-      },
-    ],
-    isActive: {
-      type: Boolean,
-      default: false,
-    },
     profileUrl: String,
-    tokenEMQX: {
-      type: String,
-    },
     refreshToken: {
       type: String,
     },
-    verifired: {
-      type: Boolean,
-      default: false,
+    phone: {
+      type: String,
+      trim: true,
     },
   },
   {

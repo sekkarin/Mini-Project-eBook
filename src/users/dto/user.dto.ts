@@ -11,61 +11,32 @@ import {
 } from 'class-validator';
 import { FileUploadDto } from './file-upload.dto';
 
-export class ForgetPassDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
-}
+
 
 export class CreateUserDto {
-  @ApiProperty({
-    description: 'Email of the user',
-    example: 'john.doe@example.com',
-  })
+  @IsString()
+  @IsNotEmpty()
+  firstName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  titleName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  lastName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+
   @IsEmail()
   @IsNotEmpty()
   email: string;
-
-  @ApiProperty({
-    description: 'Password for the user',
-    example: 'Password123',
-  })
-  @IsNotEmpty()
-  @Length(8)
-  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'password too weak',
-  })
-  password: string;
-
-  @ApiProperty({
-    description: 'First name of the user',
-    example: 'John',
-  })
-  @IsString()
-  @MinLength(3)
-  @MaxLength(30)
-  @Matches('^[a-zA-Z\\s]+$', undefined)
-  readonly firstName?: string;
-
-  @ApiProperty({
-    description: 'Last name of the user',
-    example: 'Doe',
-  })
-  @IsString()
-  @MinLength(3)
-  @MaxLength(30)
-  @Matches('^[a-zA-Z\\s]+$', undefined)
-  readonly lastName?: string;
-
-  @ApiProperty({
-    description: 'Username of the user',
-    example: 'johndoe',
-  })
-  @IsString()
-  @MinLength(3)
-  @MaxLength(30)
-  @Matches('^[a-zA-Z0-9\\s]+$', undefined)
-  readonly username?: string;
 }
 
 export class UpdateUserDto {

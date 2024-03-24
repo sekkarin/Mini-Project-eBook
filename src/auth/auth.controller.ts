@@ -32,8 +32,8 @@ import {
   AccessTokenResponseDto,
   BodyUserLoginDto,
   ResetPasswordDto,
-  UserResponseDto,
 } from './dto/auth.dto';
+import { UserResponseDto } from 'src/users/dto/user.response.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -44,44 +44,8 @@ export class AuthController {
   ) {}
 
   @Post('login')
-  @ApiOperation({ summary: 'User login' }) // Operation summary
-  @ApiResponse({
-    status: 200,
-    description: `User logged in successfully  access token   payload = {
-      sub: string,
-      username: string,
-      roles:array
-    } 
-    EXPIRES = 6  days
-    `,
-
-    type: AccessTokenResponseDto,
-    headers: {
-      refresh_token: {
-        description: 'Cookie to store the refresh token for authentication.',
-        schema: {
-          type: 'string',
-        },
-        example:
-          'refresh_token=myRefreshToken; HttpOnly; SameSite=None; Secure; Max-Age=518,400,000 or 6 day',
-      },
-    },
-  }) // Response description
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Array of validation error messages',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Unauthorized - incorrect or missing credentials',
-  })
   async signIn(@Body() signInDto: BodyUserLoginDto, @Res() res: Response) {
-    const checkIsActive = await this.authService.checkIsActive(
-      signInDto.username,
-    );
-    if (!checkIsActive) {
-      throw new UnauthorizedException('User is banned');
-    }
+   
     const user = await this.authService.signIn(
       signInDto.username,
       signInDto.password,
@@ -100,21 +64,10 @@ export class AuthController {
     return res.status(200).json({ access_token: user.access_token });
   }
 
-  @ApiOperation({ summary: 'User registration' }) // Operation summary
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'User registered successfully',
-    type: UserResponseDto,
-  }) // Response description
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Array of validation error messages',
-  })
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
   async signUp(@Body() signUpDto: CreateUserDto) {
     try {
-      
       return this.authService.signUp(signUpDto);
     } catch (error) {
       console.log(error);
@@ -123,11 +76,7 @@ export class AuthController {
   }
 
   @Post('logout')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'User logout' }) // Operation summary
-  @ApiResponse({ status: 200, description: 'User successfully logged out' })
-  @Roles(Role.User, Role.Admin)
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(AuthGuard)
   async logOut(@Req() req: Request, @Res() res: Response) {
     const username = req.user.username;
     await this.authService.logOut(username);
@@ -136,28 +85,6 @@ export class AuthController {
   }
 
   @Get('refresh')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Refresh access token using a refresh token' }) // Operation summary
-  @ApiResponse({
-    status: 200,
-    description: 'Access token refreshed successfully',
-    schema: {
-      type: 'object',
-      properties: {
-        access_token: {
-          type: 'string',
-          description: 'New access token',
-          example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-        },
-      },
-    },
-  }) // Response description
-  @ApiResponse({
-    status: 400,
-    description: 'Unauthorized - missing refresh token',
-  })
-  @ApiCookieAuth('refresh_token')
-  @ApiBearerAuth()
   async refresh(@Req() request: Request, @Res() res: Response) {
     const cookies = request.cookies;
     if (!cookies.refresh_token) {
@@ -165,83 +92,5 @@ export class AuthController {
     }
     const access_token = await this.authService.refresh(cookies.refresh_token);
     res.status(200).json({ access_token });
-  }
-
-  @Get('email/:token')
-  @ApiOperation({ summary: 'Verify Email using token' })
-  @ApiParam({
-    name: 'token',
-    description: 'Using token for verify your email',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Your email was verifired',
-    schema: {
-      type: 'object',
-      properties: {
-        msg: {
-          type: 'string',
-          description: 'Message for tell your about result',
-          example: 'Your email is verifired',
-        },
-      },
-    },
-  }) // Response description
-  @ApiResponse({
-    status: 403,
-    description: 'Unauthorized - token is not valid',
-  })
-  async verifyEmail(@Param('token') token, @Res() res: Response) {
-    res.status(200).json({ msg: 'Your email is verifired' });
-  }
-
-  @Get('/forget-password/:email')
-  @ApiOperation({ summary: 'Send reset password form using email of user' })
-  @ApiParam({
-    name: 'email',
-    description: 'Email of account that you want to reset password',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Unauthorized - token is not valid',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized - Registration error mail not sent',
-  })
-  @ApiResponse({
-    status: 404,
-    description: "NotFound - Can't find user account with email that your sent",
-  }) // Response description
- 
-
-  @Post('/reset-password/:token')
-  @ApiOperation({
-    summary: 'Reset User Password',
-  })
-  @ApiParam({
-    name: 'token',
-    description:
-      'token for prove you are email owner it was send in user e-mail after user click forget password and input user email',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Reset user password successfully',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Reset user password successfully',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'token is not valid',
-  }) // Response description
-  async setNewPassword(
-    @Param('token') token,
-    @Body() resetPasswordDto: ResetPasswordDto,
-    @Res() res: Response,
-  ) {
-    await this.authService.resetPassword(token, resetPasswordDto.newPassword);
-    res.status(200).json({ msg: 'Reset your password already' });
   }
 }

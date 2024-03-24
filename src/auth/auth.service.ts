@@ -14,9 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { UsersService } from './../users/users.service';
 import { User } from './../users/interfaces/user.interface';
 import { CreateUserDto } from './../users/dto/user.dto';
-import { UserResponseDto } from './dto/auth.dto';
-import { FORM_FORGET_PASS } from './../utils/forgetPassForm';
-import { FORM_VERIFY_EMAIL } from './../utils/emailVerification';
+import { UserResponseDto } from 'src/users/dto/user.response.dto';
 
 @Injectable()
 export class AuthService {
@@ -31,9 +29,7 @@ export class AuthService {
       if (!user) {
         throw new NotFoundException('Not found your username');
       }
-      if (!user.verifired) {
-        throw new UnauthorizedException('Please verify your e-mail first');
-      }
+
       const isMath = await bcrypt.compare(pass, user.password);
 
       if (!isMath) {
@@ -44,7 +40,6 @@ export class AuthService {
       payload = {
         sub: user.id,
         username: user.username,
-        roles: user.roles,
       };
       const refresh_token = await this.jwtService.signAsync(payload, {
         expiresIn: this.configService.get<string>('EXPIRES_IN_REFRESH_TOKEN'),
@@ -119,7 +114,6 @@ export class AuthService {
         const payload = {
           sub: foundUser.id,
           username: foundUser.username,
-          roles: foundUser.roles,
         };
 
         const access_token = await this.jwtService.signAsync(payload, {
@@ -139,32 +133,5 @@ export class AuthService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-  }
-
- 
-
-  async resetPassword(token: string, newPassword: string) {
-    try {
-      const payload = this.jwtService.verify(token, {
-        secret: this.configService.get<string>('SECRET_RESET_PASS'),
-      });
-      const hashPassword = await bcrypt.hash(newPassword, 10);
-      return await this.usersService.setNewPassword(
-        payload.email,
-        hashPassword,
-      );
-    } catch (error) {
-      throw new HttpException(
-        'Unauthorized - token is not valid',
-        HttpStatus.FORBIDDEN,
-      );
-    }
-  }
-  async checkIsActive(username: string): Promise<boolean> {
-    const user = await this.usersService.findOne(username);
-    if (!user) {
-      throw new NotFoundException('not found user');
-    }
-    return user.isActive;
   }
 }

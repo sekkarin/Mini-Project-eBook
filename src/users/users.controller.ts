@@ -35,11 +35,10 @@ import { RolesGuard } from './../auth/guards/roles.guard';
 import { GetUserAllDto, UpdateUserDto } from './dto/user.dto';
 import { MongoDBObjectIdPipe } from './../utils/pipes/mongodb-objectid.pipe';
 import { PaginatedDto } from './../utils/dto/paginated.dto';
-import { UserResponseDto } from './../auth/dto/auth.dto';
+import { UserResponseDto } from './dto/user.response.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { storageFiles } from './../utils/storageFiles';
 import { ConfigService } from '@nestjs/config';
-import { BannedDto } from './dto/banned.dto';
 
 // TODO: sort and filter get users
 @ApiTags('User')
@@ -134,69 +133,6 @@ export class UsersController {
       }
       throw error;
     }
-  }
-
-  @Put('banned/:id')
-  @Roles(Role.Admin)
-  @UseGuards(AuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Set user banned state,Roles Admin' }) // เพิ่มคำอธิบายสำหรับ API Endpoint
-  @ApiResponse({
-    status: 200,
-    description: 'User updated successfully',
-    type: UserResponseDto,
-  })
-  @ApiBearerAuth()
-  async setBanned(
-    @Body() banned: BannedDto,
-    @Param('id', MongoDBObjectIdPipe) id: string,
-  ) {
-    try {
-      const bannedState = banned.banned;
-      return this.usersService.setBanned(bannedState, id);
-    } catch (error) {
-      console.log(error);
-      
-      throw error;
-    }
-  }
-
-  @Get('search')
-  @Roles(Role.Admin)
-  @UseGuards(AuthGuard, RolesGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Search all users, Roles Admin' }) // Operation summary
-  @ApiQuery({
-    name: 'query',
-    type: String,
-    required: false,
-    description: 'string query to search',
-  })
-  @ApiQuery({
-    name: 'page',
-    type: Number,
-    required: false,
-    description: 'Page number for pagination (default: 1)',
-  })
-  @ApiQuery({
-    name: 'limit',
-    type: Number,
-    required: false,
-    description: 'limit Number of items  (default: 10)',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns a paginated list of user',
-    type: UserResponseDto,
-    isArray: true,
-  })
-  async searchDevices(
-    @Req() req: Request,
-    @Query('query') query: string,
-    // @Query() paginationQueryparamsDto: PaginationQueryparamsDto,
-  ) {
-    const { sub } = req['user'];
-    // const { page, limit } = paginationQueryparamsDto;
-    return this.usersService.searchUsers(query, 2, 2, sub);
   }
 
   @Get()

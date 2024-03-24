@@ -1,7 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { MailerModule } from '@nestjs-modules/mailer';
-import { HttpModule } from '@nestjs/axios';
-import { ConfigService, ConfigModule } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
@@ -10,7 +8,7 @@ import { UsersModule } from './users/users.module';
 import configuration from './../conf/configuration';
 import { LoggerMiddleware } from './utils/middlewares/logger.middleware';
 import { BooksModule } from './books/books.module';
-import { BooksModule } from './books/books.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -21,8 +19,8 @@ import { BooksModule } from './books/books.module';
       isGlobal: true,
       envFilePath: [configuration],
     }),
-    HttpModule,
     BooksModule,
+    CategoryModule,
   ],
   providers: [AppService],
 })

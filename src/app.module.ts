@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import configuration from './../conf/configuration';
 import { LoggerMiddleware } from './utils/middlewares/logger.middleware';
+import { BooksModule } from './books/books.module';
+import { BooksModule } from './books/books.module';
 
 @Module({
   imports: [
@@ -20,6 +22,7 @@ import { LoggerMiddleware } from './utils/middlewares/logger.middleware';
       envFilePath: [configuration],
     }),
     HttpModule,
+    BooksModule,
   ],
   providers: [AppService],
 })

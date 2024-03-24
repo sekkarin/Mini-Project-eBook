@@ -54,6 +54,7 @@ export class AuthController {
     } 
     EXPIRES = 6  days
     `,
+
     type: AccessTokenResponseDto,
     headers: {
       refresh_token: {

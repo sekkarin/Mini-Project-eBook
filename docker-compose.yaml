@@ -3,21 +3,19 @@ version: '3.1'
 services:
   mongo:
     container_name: ebook-mongoDB
-    image: mongo:4.4
+    build: ./mongo
     restart: always
-    # environment:
+    volumes:
+      - ./mongo/data:/data/db #Helps to store MongoDB data in `./mongo/data`
+      - mongodb:/data/db
+    environment:
       # MONGO_INITDB_ROOT_USERNAME: mongoDb
       # MONGO_INITDB_ROOT_PASSWORD: password123
-      # MONGO_INITDB_DATABASE: ebook
-      # MONGODB_DATABASE: ebook
+      MONGO_INITDB_DATABASE: ebook
+      MONGODB_DATABASE: ebook
     ports:
       - 27018:27017
-    volumes:
-      - mongodb:/data/db
-   
 
- 
-  
 volumes:
   mongodb:
     name: mongodb-ebook

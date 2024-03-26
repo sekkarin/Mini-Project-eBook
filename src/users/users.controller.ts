@@ -111,20 +111,15 @@ export class UsersController {
     }
   }
 
-  @Get(':id')
+  @Get()
   @UseGuards(AuthGuard)
   async getUser(
     @Req() req: Request,
-    @Param('id', MongoDBObjectIdPipe) id: string,
   ) {
     const { sub } = req['user'];
     try {
-      if (id !== sub) {
-        throw new ForbiddenException(
-          'You are not authorized to access this resource',
-        );
-      }
-      return await this.usersService.findOneById(id);
+     
+      return await this.usersService.findOneById(sub);
     } catch (error) {
       throw error;
     }

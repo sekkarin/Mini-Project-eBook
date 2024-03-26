@@ -146,6 +146,8 @@ export class UsersService {
       lastName: user.lastName,
       username: user.username,
       profileUrl: user.profileUrl,
+      phone: user.phone,
+      titleName: user.titleName
     };
   }
 }

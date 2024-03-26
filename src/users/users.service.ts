@@ -87,6 +87,8 @@ export class UsersService {
       if (!user) {
         throw new NotFoundException('User not found');
       }
+      console.log(file?.filename);
+      
       if (file?.filename) {
         profileUrl = url + file.filename;
         if (user?.profileUrl) {

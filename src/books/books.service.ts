@@ -88,14 +88,15 @@ export class BookService {
     if (!bookExisting) {
       throw new NotFoundException('not found ebook');
     }
-    if (files.coverImage[0].filename) {
+
+    if (files?.coverImage) {
       coverImageUrl = url + '/books/cover/' + files.coverImage[0].filename;
       if (bookExisting?.coverImage) {
         const fullUrl = bookExisting?.coverImage.split('/cover/')[1];
         this.deleteFile('./uploads/ebook/' + fullUrl);
       }
     }
-    if (files.bookFile[0].filename) {
+    if (files?.bookFile) {
       bookFileUrl = url + '/books/file/' + files.bookFile[0].filename;
       if (bookExisting?.bookFile) {
         const fullUrl = bookExisting?.bookFile.split('/file/')[1];

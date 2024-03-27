@@ -68,7 +68,7 @@ export class UsersController {
       host +
       `:${this.configService.get<string>('PORT')}` +
       originUrl +
-      '/profile/';
+      'profile/';
     try {
       const id = req['user'].sub;
       if (Object.keys(updateUserDto).length === 0 && !profile) {
